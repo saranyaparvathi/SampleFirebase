@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import com.google.firebase.quickstart.database.R;
 import com.google.firebase.quickstart.database.java.models.Post;
+import com.google.firebase.quickstart.database.java.models.ShelterHome;
 
 public class PostViewHolder extends RecyclerView.ViewHolder {
 
@@ -33,5 +34,9 @@ public class PostViewHolder extends RecyclerView.ViewHolder {
         bodyView.setText(post.body);
 
         starView.setOnClickListener(starClickListener);
+    }
+
+    public void bindToPost(ShelterHome home, View.OnClickListener onClickListener) {
+        titleView.setText(home.name);
     }
 }

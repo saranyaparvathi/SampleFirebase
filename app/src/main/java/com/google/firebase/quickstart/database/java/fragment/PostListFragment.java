@@ -23,6 +23,7 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.quickstart.database.R;
 import com.google.firebase.quickstart.database.java.PostDetailActivity;
 import com.google.firebase.quickstart.database.java.models.Post;
+import com.google.firebase.quickstart.database.java.models.ShelterHome;
 import com.google.firebase.quickstart.database.java.viewholder.PostViewHolder;
 
 public abstract class PostListFragment extends Fragment {
@@ -33,7 +34,7 @@ public abstract class PostListFragment extends Fragment {
     private DatabaseReference mDatabase;
     // [END define_database_reference]
 
-    private FirebaseRecyclerAdapter<Post, PostViewHolder> mAdapter;
+    private FirebaseRecyclerAdapter<ShelterHome, PostViewHolder> mAdapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
 
@@ -68,7 +69,7 @@ public abstract class PostListFragment extends Fragment {
         // Set up FirebaseRecyclerAdapter with the Query
         Query postsQuery = getQuery(mDatabase);
 
-        FirebaseRecyclerOptions options = new FirebaseRecyclerOptions.Builder<Post>()
+        /*FirebaseRecyclerOptions options = new FirebaseRecyclerOptions.Builder<Post>()
                 .setQuery(postsQuery, Post.class)
                 .build();
 
@@ -102,6 +103,51 @@ public abstract class PostListFragment extends Fragment {
                 } else {
                     viewHolder.starView.setImageResource(R.drawable.ic_toggle_star_outline_24);
                 }
+
+                // Bind Post to ViewHolder, setting OnClickListener for the star button
+                viewHolder.bindToPost(model, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View starView) {
+                        // Need to write to both places the post is stored
+                        DatabaseReference globalPostRef = mDatabase.child("posts").child(postRef.getKey());
+                        DatabaseReference userPostRef = mDatabase.child("user-posts").child(model.uid).child(postRef.getKey());
+
+                        // Run two transactions
+                        onStarClicked(globalPostRef);
+                        onStarClicked(userPostRef);
+                    }
+                });
+            }
+        };*/
+
+        FirebaseRecyclerOptions options = new FirebaseRecyclerOptions.Builder<ShelterHome>()
+                .setQuery(postsQuery, ShelterHome.class)
+                .build();
+
+        mAdapter = new FirebaseRecyclerAdapter<ShelterHome, PostViewHolder>(options) {
+
+            @Override
+            public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+                LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
+                return new PostViewHolder(inflater.inflate(R.layout.item_post, viewGroup, false));
+            }
+
+            @Override
+            protected void onBindViewHolder(PostViewHolder viewHolder, int position, final ShelterHome model) {
+                final DatabaseReference postRef = getRef(position);
+
+                // Set click listener for the whole post view
+                final String postKey = postRef.getKey();
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Launch PostDetailActivity
+                        Intent intent = new Intent(getActivity(), PostDetailActivity.class);
+                        intent.putExtra(PostDetailActivity.EXTRA_POST_KEY, postKey);
+                        startActivity(intent);
+                    }
+                });
+
 
                 // Bind Post to ViewHolder, setting OnClickListener for the star button
                 viewHolder.bindToPost(model, new View.OnClickListener() {
