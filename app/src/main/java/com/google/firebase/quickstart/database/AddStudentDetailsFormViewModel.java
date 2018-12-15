@@ -1,8 +1,6 @@
 package com.google.firebase.quickstart.database;
 
-import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
-import android.arch.lifecycle.OnLifecycleEvent;
 import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.support.annotation.NonNull;
@@ -43,19 +41,14 @@ public class AddStudentDetailsFormViewModel implements LifecycleObserver {
     public ObservableBoolean isSubmitButtonEnabled = new ObservableBoolean(false);
 
     private final String uid;
+    private final DatabaseReference reference;
 
     public AddStudentDetailsFormViewModel(String uid) {
         this.uid = uid;
-    }
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    public void init() {
-        System.out.println("Name" + name.get());
-        name.set("Hiiii");
+        reference = FirebaseDatabase.getInstance().getReference();
     }
 
     public void submitData() {
-        final DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
 
         reference.child("users").child(uid)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -75,6 +68,12 @@ public class AddStudentDetailsFormViewModel implements LifecycleObserver {
                         Log.w(TAG, "getUser:onCancelled", databaseError.toException());
                     }
                 });
+
+        retrieveData();
+    }
+
+    private void retrieveData() {
+        Log.d("Shelterhome Data : ", reference.child("Shelterhome").child(uid).getKey());
     }
 
     public void onRadioButtonClicked(View view) {
@@ -101,28 +100,29 @@ public class AddStudentDetailsFormViewModel implements LifecycleObserver {
     }
 
     public void validateToEnableSave() {
-        isSubmitButtonEnabled.set(isFieldsNonEmpty() && isValidDateFormats());
+        isSubmitButtonEnabled.set(isFieldsNonEmpty() &&
+                isValidDateFormats(dob));
     }
 
-    private boolean isValidDateFormats() {
-        if (dob.get().trim().equals(""))
+    private boolean isValidDateFormats(ObservableField<String> date) {
+        if (null != date.get() && date.get().trim().isEmpty())
             return false;
         SimpleDateFormat sdfrmt = new SimpleDateFormat("dd/MM/yyyy");
-        try
-        {
-            Date javaDate = sdfrmt.parse(dob.get());
-            System.out.println(dob.get()+" is valid date format");
-        }
-        catch (ParseException e)
-        {
-            System.out.println(dob.get() +" is Invalid Date format");
+        try {
+            Date javaDate = sdfrmt.parse(date.get());
+            System.out.println(date + " is valid date format");
+        } catch (ParseException e) {
+            System.out.println(date + " is Invalid Date format");
             return false;
         }
         return true;
     }
 
     private boolean isFieldsNonEmpty() {
-        return name.get() != null && !name.get().isEmpty() && admissionNumber.get() != null && !admissionNumber.get().isEmpty();
+        return name.get() != null && !name.get().isEmpty() &&
+                admissionNumber.get() != null && null != dob &&
+                contactNumber.get() != null && contactNumber.get().length() == 10 &&
+                contactNumber.get().matches("[0-9]+");
     }
 
     private void addDataInDatabase(DatabaseReference reference) {

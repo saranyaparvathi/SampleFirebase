@@ -8,6 +8,7 @@
             name="viewModel"
             type="com.google.firebase.quickstart.database.AddStudentDetailsFormViewModel"/>
     </data>
+
 <android.support.constraint.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -122,6 +123,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@={viewModel.contactNumber}"
+                    android:inputType="number"
                     android:afterTextChanged="@{(s) -> viewModel.validateToEnableSave()}"
                     android:hint="Contact Number" />
 
