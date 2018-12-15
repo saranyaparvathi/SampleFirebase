@@ -1,7 +1,9 @@
 package com.google.firebase.quickstart.database.java.fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -27,6 +30,21 @@ import com.google.firebase.quickstart.database.java.models.Post;
 import com.google.firebase.quickstart.database.java.models.ShelterHome;
 import com.google.firebase.quickstart.database.java.viewholder.PostViewHolder;
 
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class PostListFragment extends Fragment {
 
     private static final String TAG = "PostListFragment";
@@ -38,6 +56,8 @@ public abstract class PostListFragment extends Fragment {
     private FirebaseRecyclerAdapter<ShelterHome, PostViewHolder> mAdapter;
     private RecyclerView mRecycler;
     private LinearLayoutManager mManager;
+    private final List<ShelterHome> shelterHomes = new ArrayList<>();
+    private Button downloadButton;
 
     public PostListFragment() {}
 
@@ -49,6 +69,7 @@ public abstract class PostListFragment extends Fragment {
 
         // [START create_database_reference]
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        downloadButton = rootView.findViewById(R.id.button_download);
         // [END create_database_reference]
 
         mRecycler = rootView.findViewById(R.id.messagesList);
@@ -60,6 +81,7 @@ public abstract class PostListFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        shelterHomes.clear();
 
         // Set up Layout Manager, reverse layout
         mManager = new LinearLayoutManager(getActivity());
@@ -121,6 +143,7 @@ public abstract class PostListFragment extends Fragment {
             }
         };*/
 
+
         FirebaseRecyclerOptions options = new FirebaseRecyclerOptions.Builder<ShelterHome>()
                 .setQuery(postsQuery, ShelterHome.class)
                 .build();
@@ -129,6 +152,7 @@ public abstract class PostListFragment extends Fragment {
 
             @Override
             public PostViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+                setListenerForButton();
                 LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
                 return new PostViewHolder(inflater.inflate(R.layout.item_post, viewGroup, false));
             }
@@ -136,6 +160,7 @@ public abstract class PostListFragment extends Fragment {
             @Override
             protected void onBindViewHolder(PostViewHolder viewHolder, int position, final ShelterHome model) {
                 final DatabaseReference postRef = getRef(position);
+                shelterHomes.add(model);
 
                 // Set click listener for the whole post view
                 final String postKey = postRef.getKey();
@@ -166,6 +191,129 @@ public abstract class PostListFragment extends Fragment {
             }
         };
         mRecycler.setAdapter(mAdapter);
+    }
+
+    private void setListenerForButton() {
+        downloadButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (null != shelterHomes && shelterHomes.size() > 0) {
+                    saveExcelFile(getActivity().getApplicationContext(), "Sample.xls");
+                }
+            }
+        });
+    }
+
+    private  boolean saveExcelFile(Context context, String fileName) {
+        // check if available and not read only
+        if (!isExternalStorageAvailable() && !isExternalStorageReadOnly()) {
+            Log.e(TAG, "Storage not available or read only");
+            return false;
+        }
+
+        boolean success = false;
+
+        //New Workbook
+        Workbook wb = new HSSFWorkbook();
+
+        Cell c = null;
+
+        //Cell style for header row
+        CellStyle cs = wb.createCellStyle();
+        cs.setFillForegroundColor(HSSFColor.LIME.index);
+        cs.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+
+        //New Sheet
+        Sheet sheet1 = null;
+        sheet1 = wb.createSheet("myOrder");
+
+        // Generate column headings
+        Row row = sheet1.createRow(0);
+
+        c = row.createCell(0);
+        c.setCellValue("Item Number");
+        c.setCellStyle(cs);
+
+        c = row.createCell(1);
+        c.setCellValue("Quantity");
+        c.setCellStyle(cs);
+
+        c = row.createCell(2);
+        c.setCellValue("Price");
+        c.setCellStyle(cs);
+
+        sheet1.setColumnWidth(0, (15 * 500));
+        sheet1.setColumnWidth(1, (15 * 500));
+        sheet1.setColumnWidth(2, (15 * 500));
+
+        // Create a path where we will place our List of objects on external storage
+
+        File file = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.FROYO) {
+           /* file = new File(Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS), fileName);*/
+           File directory = new File(Environment.getExternalStorageDirectory() + "/" + "Androhub Downloads");
+
+           file = new File(Environment.getExternalStoragePublicDirectory(
+                                Environment.DIRECTORY_DOWNLOADS), fileName);
+            /*if (!directory.exists()) {
+                directory.mkdir();
+                Log.e(TAG, "Directory Created.");
+            }
+            if (!directory.exists()) {
+                directory.mkdir();
+                Log.e(TAG, "Directory Created.");
+            }
+            file = new File(directory, fileName);
+
+
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.e(TAG, "File Created");
+            }*/
+
+        } else {
+            file = new File(context.getExternalFilesDir(null), fileName);
+        }
+        FileOutputStream os = null;
+
+        try {
+            os = new FileOutputStream(file);
+            wb.write(os);
+            Log.w("FileUtils", "Writing file" + file);
+            success = true;
+        } catch (IOException e) {
+            Log.w("FileUtils", "Error writing " + file, e);
+        } catch (Exception e) {
+            Log.w("FileUtils", "Failed to save file", e);
+        } finally {
+            try {
+                if (null != os)
+                    os.close();
+            } catch (Exception ex) {
+            }
+        }
+        return success;
+    }
+
+    public static boolean isExternalStorageReadOnly() {
+        String extStorageState = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isExternalStorageAvailable() {
+        String extStorageState = Environment.getExternalStorageState();
+        if (Environment.MEDIA_MOUNTED.equals(extStorageState)) {
+            return true;
+        }
+        return false;
     }
 
     // [START post_stars_transaction]
