@@ -22,6 +22,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.quickstart.database.R;
 import com.google.firebase.quickstart.database.java.PostDetailActivity;
+import com.google.firebase.quickstart.database.java.ViewStudentDetailsActivity;
 import com.google.firebase.quickstart.database.java.models.Post;
 import com.google.firebase.quickstart.database.java.models.ShelterHome;
 import com.google.firebase.quickstart.database.java.viewholder.PostViewHolder;
@@ -142,8 +143,8 @@ public abstract class PostListFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         // Launch PostDetailActivity
-                        Intent intent = new Intent(getActivity(), PostDetailActivity.class);
-                        intent.putExtra(PostDetailActivity.EXTRA_POST_KEY, postKey);
+                        Intent intent = new Intent(getActivity(), ViewStudentDetailsActivity.class);
+                        intent.putExtra(ViewStudentDetailsActivity.EXTRA_POST_KEY, postKey);
                         startActivity(intent);
                     }
                 });

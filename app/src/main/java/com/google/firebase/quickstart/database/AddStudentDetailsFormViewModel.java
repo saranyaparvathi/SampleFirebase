@@ -49,7 +49,6 @@ public class AddStudentDetailsFormViewModel implements LifecycleObserver {
     }
 
     public void submitData() {
-
         reference.child("users").child(uid)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -69,11 +68,6 @@ public class AddStudentDetailsFormViewModel implements LifecycleObserver {
                     }
                 });
 
-        retrieveData();
-    }
-
-    private void retrieveData() {
-        Log.d("Shelterhome Data : ", reference.child("Shelterhome").child(uid).getKey());
     }
 
     public void onRadioButtonClicked(View view) {

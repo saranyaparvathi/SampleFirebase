@@ -13,14 +13,15 @@ public class ViewStudentDetailsActivity extends BaseActivity {
     private ViewStudentDetailsViewModel viewModel;
 
     RecyclerView recyclerView;
+    public static final String EXTRA_POST_KEY = "post_key";
+    private String postKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = new ViewStudentDetailsViewModel("gjkkhj");
+        postKey = getIntent().getStringExtra(EXTRA_POST_KEY);
+        viewModel = new ViewStudentDetailsViewModel(postKey);
         ActivityViewStudentDetailsBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_view_student_details);
-        recyclerView = binding.recyclerView;
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.setViewModel(viewModel);
         getLifecycle().addObserver(viewModel);
     }

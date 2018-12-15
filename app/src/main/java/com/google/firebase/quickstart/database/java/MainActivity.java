@@ -47,14 +47,19 @@ public class  MainActivity extends BaseActivity {
         // Create the adapter that will return a fragment for each section
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[] {
-                    new RecentPostsFragment(),
+                    //new RecentPostsFragment(),
                     new MyPostsFragment(),
                     new MyTopPostsFragment(),
             };
-            private final String[] mFragmentNames = new String[] {
+            /*private final String[] mFragmentNames = new String[] {
                     getString(R.string.heading_recent),
                     getString(R.string.heading_my_posts),
                     getString(R.string.heading_my_top_posts)
+            };*/
+
+            private final String[] mFragmentNames = new String[] {
+                    getString(R.string.heading_student_details),
+                    getString(R.string.heading_student_detail_1)
             };
             @Override
             public Fragment getItem(int position) {
@@ -79,7 +84,7 @@ public class  MainActivity extends BaseActivity {
         findViewById(R.id.fabNewPost).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, NewPostActivity.class));
+                startActivity(new Intent(MainActivity.this, AddStudentDetailsFormActivity.class));
             }
         });
     }
