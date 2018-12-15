@@ -35,6 +35,8 @@
 
         <activity android:name=".java.PostDetailActivity" />
         <activity android:name=".kotlin.PostDetailActivity" />
+
+        <activity android:name=".java.AddStudentDetailsFormActivity"/>
     </application>
 
 </manifest>

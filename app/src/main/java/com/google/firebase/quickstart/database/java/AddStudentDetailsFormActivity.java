@@ -1,33 +1,41 @@
 package com.google.firebase.quickstart.database.java;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.firebase.quickstart.database.AddStudentDetailsFormViewModel;
 import com.google.firebase.quickstart.database.R;
+import com.google.firebase.quickstart.database.databinding.ActivityAddStudentDetailsFormBinding;
 
-public class AddStudentDetailsFormActivity extends AppCompatActivity {
+public class AddStudentDetailsFormActivity extends BaseActivity {
 
     private RadioGroup radioSexGroup;
     private RadioButton radioSexButton;
-    private Button btnDisplay;
+    private Button submitButton;
+
+    private AddStudentDetailsFormViewModel viewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_student_details_form);
+        viewModel = new AddStudentDetailsFormViewModel(getUid());
+        ActivityAddStudentDetailsFormBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_add_student_details_form);
+        binding.setViewModel(viewModel);
+        getLifecycle().addObserver(viewModel);
+        //setContentView(R.layout.activity_add_student_details_form);
 
-        addListenerOnButton();
+        //addListenerOnButton();
 
     }
 
     public void addListenerOnButton() {
 
-        radioSexGroup = (RadioGroup) findViewById(R.id.radioSex);
+        radioSexGroup = (RadioGroup) findViewById(R.id.radio_gender);
         /*btnDisplay = (Button) findViewById(R.id.btnDisplay);
 
         btnDisplay.setOnClickListener(new View.OnClickListener() {
@@ -68,6 +76,13 @@ public class AddStudentDetailsFormActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Selected button number " + index, Toast.LENGTH_LONG).show();
                         break;
                 }
+            }
+        });
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
 

@@ -16,6 +16,7 @@ buildscript {
 allprojects {
     repositories {
         //mavenLocal() must be listed at the top to facilitate testing
+        maven { url "https://maven.google.com" }
         mavenLocal()
         jcenter()
         google()
